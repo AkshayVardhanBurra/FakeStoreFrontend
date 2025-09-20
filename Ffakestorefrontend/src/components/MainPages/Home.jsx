@@ -1,20 +1,30 @@
 
+import { useEffect, useState } from "react";
+const BASE_API = "https://fakestoreapi.com/"
 
-const BASE_API = "https://www.fakestoreapi.com/"
 
-function Home(){
-    
+
+
+
+export function Home(){
+
     const [allProducts, setAllProducts] = useState([]);
+    const [usableProducts, setUsableProducts] = useState([])
     const [search, setSearch] = useState("");
-    const [category, setCategory] = useState("");
+    const [category, setCategory] = useState("All");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [categories, setCategories] = useState([]);
 
-    useState(() => {
+    useEffect(() => {
         //fill up allProducts with all the products
         getAllProducts().then(products => {
+            console.log(products);
             setError(false)
-            setAllProducts(products)
+            setAllProducts(products);
+            setUsableProducts(products);
+            console.log(getCategories(products));
+            setCategories(getCategories(products));
             
         }).catch(err => {
             setError(err);
@@ -25,15 +35,65 @@ function Home(){
 
     }, [])
 
-    useState(() => {
+    useEffect(() => {
 
         //filters by category and searchText. returns a new list;
-        setAllProducts(filterAllProducts(category, search, allProducts));
+       const filteredProducts = filterAllProducts(category, search, usableProducts);
+       console.log(filteredProducts);
+
+        setAllProducts(filteredProducts);
     }, [category, search])
+
+
+    if(loading){
+        return <div> Is Loading... </div>
+    }else if(error){
+        return <div> Error occured: {error} </div>
+    }else{
+        return <div>
+                <InputFields search={search}
+                category={category}
+                setSearch={setSearch}
+                setCategory={setCategory}
+                allCategories={categories}
+                />
+
+                All Products:
+                <AllProducts allProducts={allProducts} />
+             </div>
+    }
 
 
 
 }
+
+function getCategories(products){
+    const categories = new Set();
+
+    products.forEach(product => {
+        if(!categories.has(product.category)){
+            categories.add(product.category);
+        }
+    });
+
+    
+    return getListFromSet(categories)
+
+    
+}
+
+
+function getListFromSet(productSet){
+    const productList = []
+
+    productSet.forEach(product => {
+        productList.push(product)
+    })
+
+    return productList;
+}
+
+
 
 //returns a new list of all the filtered products.
 function filterAllProducts(category, search, allProducts){
@@ -42,7 +102,13 @@ function filterAllProducts(category, search, allProducts){
 
 
     allProducts.forEach(product => {
-        if(product.category == category && product.title.toLowerCase().includes(search.toLowerCase())){
+        //replace includes with startwith if you want to check only starting.
+        if(category == "All" && (product.title.toLowerCase().includes(search.toLowerCase()) || search.trim() == "")){
+            filteredProducts.push(product)
+            
+        }
+        //replace includes with startwith if you want to check only the starting.
+        else if(product.category == category && (product.title.toLowerCase().includes(search.toLowerCase()) || search.trim() == "")){
             filteredProducts.push(product);
         }
     })
@@ -55,8 +121,8 @@ function filterAllProducts(category, search, allProducts){
 async function getAllProducts(){
     
     try{
-    const fulfilledPromise = await fetch(BASE_API + "products");
-    const productsJson = await fulfilledPromise.json();
+        const fulfilledPromise = await fetch(BASE_API + "products", { mode: "cors" });
+        const productsJson = await fulfilledPromise.json();
 
     return productsJson;
     }catch(error){
@@ -64,8 +130,36 @@ async function getAllProducts(){
     }
 }
 
-function InputFields({search, category, setSearch, setCategory}){
+function InputFields({search, category, setSearch, setCategory, allCategories}){
 
+    const handleSubmit = (event) => {
+        event.preventDefault()
+    }
+    return <>
+        <form onSubmit={handleSubmit}>
+            <label htmlFor="myDropdown">Choose an option:</label>
+            <select value={category} id="myDropdown" onChange={e => {
+                setCategory(e.target.value);
+                console.log("here!!!")
+            }}>
+                {allCategories.map(categoryI => {
+                    
+                        return <option key={categoryI} value={categoryI}> {categoryI} </option>
+                   
+                        
+                    
+                })}
+
+                <option value="All"> All </option>
+            </select>
+
+
+            <input type="text" value={search} onChange={e => {
+                console.log("changed!")
+                setSearch(e.target.value)}} />
+            
+        </form>
+    </>
 }
 
 
@@ -74,13 +168,17 @@ function AllProducts({allProducts}){
     
 
     //contains lists of category -> list of products
-    const categoryMap = categoryMap;
+    const categoryMap = generateCategoryMap(allProducts);
 
 
 
     // for every category, create a Category Section.
 
     return <>
+
+        {Object.keys(categoryMap).map(category => {
+            return <CategorySection key={category} category={category} filteredProducts={categoryMap[category]} />
+        })}
     </>
 
 
@@ -90,6 +188,12 @@ function AllProducts({allProducts}){
 
 function CategorySection({category, filteredProducts}){
     return <>
+        <h3> {category} </h3>
+
+        {filteredProducts.map(product => {
+            return <ProductCard key={product.id} product={product} />
+        })
+        }
     </>
 }
 
@@ -112,6 +216,16 @@ function generateCategoryMap(allProducts){
 
 function ProductCard({product}){
     
+
+
+    return <div>
+
+        <h3> {product.title} </h3>
+        <img src={product.image} />
+        <p>
+            ${product.price}
+        </p>
+    </div>
 }
 
 
