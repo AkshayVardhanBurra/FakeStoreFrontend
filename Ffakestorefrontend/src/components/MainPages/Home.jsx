@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 const BASE_API = "https://fakestoreapi.com/"
 
 
@@ -65,6 +66,10 @@ export function Home(){
 
 
 
+}
+
+function prettifyPrice(price){
+    return `$${Number(price).toFixed(2)}`;
 }
 
 function getCategories(products){
@@ -217,14 +222,17 @@ function generateCategoryMap(allProducts){
 function ProductCard({product}){
     
 
-
+    const navigate = useNavigate();
     return <div>
-
+        <div id="clickable-section" onClick={() => {
+            navigate("products/" + product.id);
+        }}>
         <h3> {product.title} </h3>
         <img src={product.image} />
         <p>
-            ${product.price}
+            {prettifyPrice(product.price)}
         </p>
+        </div>
     </div>
 }
 

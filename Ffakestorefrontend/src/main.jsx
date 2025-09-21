@@ -11,16 +11,21 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
-  },
-  {
-    path: "products/:id",
-    element: <ProductView />,
-  },
+    element: <App />,
+    children:[
+      {path:"home", element:<Home />},
+      {path:"products/:id", element:<ProductView />},
+      {index:true, element:<Home />}
+      
+    ]
+
+    
+  }
 ]);
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    
     <RouterProvider router={router} />
   </StrictMode>,
 )

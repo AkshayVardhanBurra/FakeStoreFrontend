@@ -4,16 +4,28 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import {Home} from "./components/MainPages/Home"
 import {ProductView} from "./components/MainPages/ProductView"
+import { Outlet } from 'react-router'
+
+
+
 
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [cart, setCart] = useState([]);
 
   return (
     <>
-      <Home />
+      <NavBar cart={cart}/>
+      <Outlet context={[cart, setCart]} />
     </>
   )
 }
 
+
+function NavBar({cart}){
+  
+  return <nav>
+    <h3> Cart: {Object.keys(cart).length} </h3>
+  </nav>
+}
 export default App
