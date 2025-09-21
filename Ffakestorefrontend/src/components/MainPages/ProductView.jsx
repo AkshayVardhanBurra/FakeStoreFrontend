@@ -60,8 +60,10 @@ export function ProductView(){
                     
                 }
                 
-                cart[product.id] += numCart;
+                cart[product.id] = Number(cart[product.id]) + Number(numCart);
+                localStorage.setItem("cart", JSON.stringify(cart));
                 setCart({...cart});
+                console.log(cart);
             }}> Add to Cart </button>
             <Link to="/"> Back Home </Link>
         </div>)

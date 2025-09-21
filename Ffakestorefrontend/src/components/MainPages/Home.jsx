@@ -225,7 +225,7 @@ function ProductCard({product}){
     const navigate = useNavigate();
     return <div>
         <div id="clickable-section" onClick={() => {
-            navigate("products/" + product.id);
+            navigate("/products/" + product.id);
         }}>
         <h3> {product.title} </h3>
         <img src={product.image} />

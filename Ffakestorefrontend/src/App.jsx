@@ -5,13 +5,14 @@ import './App.css'
 import {Home} from "./components/MainPages/Home"
 import {ProductView} from "./components/MainPages/ProductView"
 import { Outlet } from 'react-router'
+import { Link } from 'react-router'
 
 
 
 
 
 function App() {
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(JSON.parse(localStorage.getItem("cart")));
 
   return (
     <>
@@ -25,7 +26,7 @@ function App() {
 function NavBar({cart}){
   
   return <nav>
-    <h3> Cart: {Object.keys(cart).length} </h3>
+    <h3> <Link to="/cart">Cart: {Object.keys(cart).length} </Link> </h3>
   </nav>
 }
 export default App
