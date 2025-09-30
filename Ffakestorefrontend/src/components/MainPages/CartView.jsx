@@ -111,13 +111,15 @@ function ProductView({cart, setCart, products, setProducts, product, setContextC
 
     return <div>
         
-        <h3> {product.title} </h3>
+        <h3> {shortenTitle(product.title, 13)} </h3>
         <img src={product.image} />
         <h4> Price: {prettifyPrice(product.price)}</h4>
         <Link to={"/products/" + product.id}> Visit Page </Link>
-        <input type="number" value={cart[product.id]} onChange={(e) => {
+        <input type="number" min="1" value={cart[product.id]} onChange={(e) => {
             cart[product.id] = e.target.value;
+            localStorage.setItem("cart", JSON.stringify(cart));
             setCart({...cart});
+            setContextCart({...cart})
         }} />
 
         <button onClick={(e) => {
@@ -137,6 +139,14 @@ function prettifyPrice(price){
     return `$${Number(price).toFixed(2)}`;
 }
 
+
+function shortenTitle(title, chars){
+    if(title.length < chars){
+        return title;
+    }else{
+        return title.substring(0, chars-3) + "...";
+    }
+}
 
 //returns product json
 async function getProduct(id){

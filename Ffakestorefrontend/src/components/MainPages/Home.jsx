@@ -1,6 +1,8 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import styles from "../../styles/mainstyle.module.css"
+
 const BASE_API = "https://fakestoreapi.com/"
 
 
@@ -47,11 +49,11 @@ export function Home(){
 
 
     if(loading){
-        return <div> Is Loading... </div>
+        return <div className={styles.homePage}> Is Loading... </div>
     }else if(error){
-        return <div> Error occured: {error} </div>
+        return <div className={styles.homePage}> Error occured: {error} </div>
     }else{
-        return <div>
+        return <div className={styles.homePage}>
                 <InputFields search={search}
                 category={category}
                 setSearch={setSearch}
@@ -141,9 +143,9 @@ function InputFields({search, category, setSearch, setCategory, allCategories}){
         event.preventDefault()
     }
     return <>
-        <form onSubmit={handleSubmit}>
+        <form className={styles.inputForm} onSubmit={handleSubmit}>
             <label htmlFor="myDropdown">Choose an option:</label>
-            <select value={category} id="myDropdown" onChange={e => {
+            <select className={styles.flexItem} value={category} id="myDropdown" onChange={e => {
                 setCategory(e.target.value);
                 console.log("here!!!")
             }}>
@@ -158,8 +160,8 @@ function InputFields({search, category, setSearch, setCategory, allCategories}){
                 <option value="All"> All </option>
             </select>
 
-
-            <input type="text" value={search} onChange={e => {
+            <label htmlFor="searchInput"> Keyword Search: </label>
+            <input className={styles.flexItem} id="searchInput" type="text" value={search} onChange={e => {
                 console.log("changed!")
                 setSearch(e.target.value)}} />
             
@@ -179,12 +181,13 @@ function AllProducts({allProducts}){
 
     // for every category, create a Category Section.
 
-    return <>
+    return <div className={styles.allProducts}>
 
         {Object.keys(categoryMap).map(category => {
             return <CategorySection key={category} category={category} filteredProducts={categoryMap[category]} />
         })}
-    </>
+
+    </div>
 
 
 
@@ -192,14 +195,20 @@ function AllProducts({allProducts}){
 
 
 function CategorySection({category, filteredProducts}){
-    return <>
+    return <div className={styles.category}>
         <h3> {category} </h3>
+
+
+        <div className={styles.categoryContainer}>
 
         {filteredProducts.map(product => {
             return <ProductCard key={product.id} product={product} />
         })
         }
-    </>
+
+        </div>
+
+    </div>
 }
 
 function generateCategoryMap(allProducts){
@@ -223,17 +232,26 @@ function ProductCard({product}){
     
 
     const navigate = useNavigate();
-    return <div>
+    return <div className={styles.productCard}>
         <div id="clickable-section" onClick={() => {
             navigate("/products/" + product.id);
         }}>
-        <h3> {product.title} </h3>
+        <h3> {shortenTitle(product.title, 13)} </h3>
         <img src={product.image} />
         <p>
             {prettifyPrice(product.price)}
         </p>
         </div>
     </div>
+}
+
+//input:string output:shortened string within 10 characters
+function shortenTitle(title, chars){
+    if(title.length < chars){
+        return title;
+    }else{
+        return title.substring(0, chars-3) + "...";
+    }
 }
 
 
